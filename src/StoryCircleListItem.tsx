@@ -6,6 +6,7 @@ import {
   Text,
   StyleSheet,
   Platform,
+  ImageBackground,
 } from 'react-native';
 
 import { usePrevious } from './helpers/StateHelpers';
@@ -48,35 +49,43 @@ const StoryCircleListItem = ({
   return (
     <View style={styles.container}>
       <TouchableOpacity
+        activeOpacity={0.7}
         onPress={() => _handleItemPress(item)}
-        style={[
-          styles.avatarWrapper,
-          {
-            height: avatarWrapperSize,
-            width: avatarWrapperSize,
-          },
-          avatarWrapperStyle,
-          !isPressed
-            ? {
-                borderColor: unPressedBorderColor ?? 'red',
-              }
-            : {
-                borderColor: pressedBorderColor ?? 'grey',
-              },
-        ]}
+        style={{ height: avatarWrapperSize, width: avatarWrapperSize }}
       >
-        <Image
+        <ImageBackground
+          source={item.outerCircle}
+          tintColor={isPressed ? pressedBorderColor : unPressedBorderColor}
           style={[
+            styles.avatarWrapper,
             {
-              height: avatarSize,
-              width: avatarSize,
-              borderRadius: 100,
+              height: avatarWrapperSize,
+              width: avatarWrapperSize,
             },
-            avatarImageStyle,
           ]}
-          source={{ uri: item.user_image }}
-          defaultSource={Platform.OS === 'ios' ? DEFAULT_AVATAR : null}
-        />
+        >
+          <View style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderRadius: 100,
+            height: avatarSize - 5,
+            width: avatarSize - 5,
+            backgroundColor: "#04196C"
+          }}>
+            <Image
+              style={[
+                {
+                  height: 28,
+                  width: 28,
+                },
+                avatarImageStyle,
+              ]}
+              source={{ uri: item.user_image }}
+              resizeMode='contain'
+              defaultSource={Platform.OS === 'ios' ? DEFAULT_AVATAR : null}
+            />
+          </View>
+        </ImageBackground>
       </TouchableOpacity>
       {showText && (
         <Text
@@ -84,7 +93,7 @@ const StoryCircleListItem = ({
           ellipsizeMode="tail"
           style={[
             {
-              width: avatarWrapperSize,
+              maxWidth: avatarWrapperSize + 10,
               ...styles.text,
               ...avatarTextStyle,
             },
@@ -105,14 +114,12 @@ export default StoryCircleListItem;
 const styles = StyleSheet.create({
   container: {
     marginVertical: 5,
-    marginRight: 10,
+    marginRight: 16,
   },
   avatarWrapper: {
-    borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    borderColor: 'red',
     borderRadius: 100,
     height: 64,
     width: 64,

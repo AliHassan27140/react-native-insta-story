@@ -48,14 +48,17 @@ export const Story = ({
 
   // Component Functions
   const _handleStoryItemPress = (item: IUserStory, index?: number) => {
-    const newData = dataState.slice(index);
     if (onStart) {
       onStart(item);
     }
 
-    setCurrentPage(0);
-    setSelectedData(newData);
+    setSelectedData(dataState);
+    setCurrentPage(index ?? 0);
     setIsModalOpen(true);
+
+    setTimeout(() => {
+      cube?.current?.scrollTo(index ?? 0, false);
+    }, 0);
   };
 
   useEffect(() => {
@@ -80,7 +83,7 @@ export const Story = ({
 
   function onStoryFinish(state: NextOrPrevious) {
     if (!isNullOrWhitespace(state)) {
-      if (state == 'next') {
+      if (state === 'next') {
         const newPage = currentPage + 1;
         if (newPage < selectedData.length) {
           setCurrentPage(newPage);
@@ -92,7 +95,7 @@ export const Story = ({
             onClose(selectedData[selectedData.length - 1]);
           }
         }
-      } else if (state == 'previous') {
+      } else if (state === 'previous') {
         const newPage = currentPage - 1;
         if (newPage < 0) {
           setIsModalOpen(false);
@@ -110,7 +113,7 @@ export const Story = ({
       return (
         <StoryListItem
           duration={duration * 1000}
-          key={i}
+          key={i + currentPage * 1000}
           userId={x.user_id}
           profileName={x.user_name}
           profileImage={x.user_image}
@@ -192,11 +195,18 @@ export const Story = ({
         style={styles.modal}
         isOpen={isModalOpen}
         onClosed={() => setIsModalOpen(false)}
-        position="center"
+        onOpened={() => {
+          if (cube?.current) {
+            cube.current.scrollTo(currentPage);
+          }
+        }}
+        position="top"
         swipeToClose
         swipeArea={250}
         backButtonClose
         coverScreen={true}
+        animationDuration={200}
+        backdropOpacity={0.5}
       >
         {renderCube()}
       </Modal>
@@ -206,9 +216,13 @@ export const Story = ({
 
 const styles = StyleSheet.create({
   modal: {
-    flex: 1,
-    height,
-    width,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: height,
+    width: width,
   },
 });
 
